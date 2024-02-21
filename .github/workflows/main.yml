@@ -39,5 +39,5 @@ jobs:
           context: .
           platforms: linux/arm64
           push: true
-          tags: ${{ env.REGISTRY }}/clarity-ai/clarity:0.5
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/clarity:latest
           
