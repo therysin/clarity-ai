@@ -39,12 +39,31 @@ const searchHandler = async (req: NextApiRequest, res: NextApiResponse<Data>) =>
     });
 
     const filteredLinks = links.filter((link, idx) => {
-      const domain = new URL(link).hostname;
+const decodedLink = decodeURIComponent(link);
+      console.log(decodedLink);
 
-      const excludeList = ["google", "facebook", "twitter", "instagram", "youtube", "tiktok"];
-      if (excludeList.some((site) => domain.includes(site))) return false;
+      try {
+        const url = new URL(decodedLink);
+        const domain = url.hostname;
 
-      return links.findIndex((link) => new URL(link).hostname === domain) === idx;
+        const excludeList = ["google", "facebook", "twitter", "instagram", "youtube", "tiktok"];
+        if (excludeList.some((site) => domain.includes(site))) return false;
+
+        return links.findIndex((otherLink) => {
+          try {
+            const otherUrl = new URL(otherLink);
+            return otherUrl.hostname === domain;
+          } catch (error) {
+            // Log invalid URLs in the links array
+            console.error(`Invalid URL in links array: ${otherLink}`);
+            return false;
+          }
+        }) === idx;
+      } catch (error) {
+        // Log invalid URLs in the current link
+        console.error(`Invalid URL: ${decodedLink}`);
+        return false;
+      }
     });
 
     const finalLinks = filteredLinks.slice(0, sourceCount);
